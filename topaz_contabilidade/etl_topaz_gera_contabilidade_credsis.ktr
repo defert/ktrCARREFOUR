@@ -476,7 +476,7 @@
       </attribute>
       <attribute>
         <code>PRESERVE_RESERVED_WORD_CASE</code>
-        <attribute>Y</attribute>
+        <attribute>N</attribute>
       </attribute>
       <attribute>
         <code>QUOTE_ALL_FIELDS</code>
@@ -1194,7 +1194,7 @@
       </output>
     </remotesteps>
     <GUI>
-      <xloc>288</xloc>
+      <xloc>224</xloc>
       <yloc>144</yloc>
       <draw>Y</draw>
     </GUI>
@@ -1270,7 +1270,7 @@ GROUP BY MC.RUBROCONTABLE, PC.C6301, MC.FECHAPROCESO, MC.DEBITOCREDITO, TT.DESCR
       </output>
     </remotesteps>
     <GUI>
-      <xloc>288</xloc>
+      <xloc>224</xloc>
       <yloc>32</yloc>
       <draw>Y</draw>
     </GUI>
