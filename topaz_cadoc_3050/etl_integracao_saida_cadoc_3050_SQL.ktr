@@ -444,7 +444,7 @@
   <connection>
     <name>TopazDS</name>
     <server>${TOPAZ_HOST}</server>
-    <type>MSSQL</type>
+    <type>MSSQLNATIVE</type>
     <access>Native</access>
     <database>${TOPAZ_DB}</database>
     <port>1433</port>
@@ -467,6 +467,10 @@
         <attribute>N</attribute>
       </attribute>
       <attribute>
+        <code>MSSQLUseIntegratedSecurity</code>
+        <attribute>false</attribute>
+      </attribute>
+      <attribute>
         <code>MSSQL_DOUBLE_DECIMAL_SEPARATOR</code>
         <attribute>N</attribute>
       </attribute>
@@ -476,7 +480,7 @@
       </attribute>
       <attribute>
         <code>PRESERVE_RESERVED_WORD_CASE</code>
-        <attribute>N</attribute>
+        <attribute>Y</attribute>
       </attribute>
       <attribute>
         <code>QUOTE_ALL_FIELDS</code>
@@ -1444,7 +1448,6 @@ WHERE
 	'11-21428400'												AS telContato,
 	'2' as COD_SIS_ORIGEM
 FROM empresas EMP
-WHERE emp.EMPRESA = '1'
 </sql>
     <outer_join>N</outer_join>
     <replace_vars>Y</replace_vars>
