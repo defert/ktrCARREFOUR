@@ -541,7 +541,8 @@
     </partitioning>
     <connection>TopazDS</connection>
     <rowlimit>0</rowlimit>
-    <sql>SELECT 
+    <sql>use CARREFOUR;
+SELECT 
          (CASE
             WHEN PP.C2302_original >= (SELECT fechaprocesoanterior FROM PARAMETROS) -- a vencer
               THEN ROUND((pp.C2309 + pp.C2310) / (POWER((CAST(? AS DECIMAL(11,7) ) + (26 / 100)), (ABS(datediff(day, (SELECT fechaprocesoanterior FROM PARAMETROS),PP.C2302_original)) / 360))),2)
@@ -566,9 +567,7 @@
                                                        id.TZ_LOCK = 0
 
     WHERE pp.SALDO_JTS_OID = ?
-      AND 
-	  pp.C2309 + pp.C2310 != 0
-      AND pp.TZ_LOCK = 0</sql>
+</sql>
     <outer_join>N</outer_join>
     <replace_vars>Y</replace_vars>
     <parameter>
@@ -822,122 +821,133 @@
       <schema_name/>
     </partitioning>
     <connection>TopazDS</connection>
-    <sql>use carrefour;
-SELECT 
-	sd.JTS_OID, 
-	   SD.C1632,
-	   SD.C1633,
---	   sc.CNPJ               				AS CNPJ_Loja,
-99999999999999 AS CNPJ_Loja,
---       sc.NOMBRECIUDAD       				AS Municipio_Loja,
-'MUNICIPIO_LOJA_?' AS Municipio_Loja,
- --      sc.UF                 				AS UF_Loja,
-'UF_LOJA_?' AS UF_Loja,
- --      sc.CODIGOPOSTAL       				AS CEP_Loja,
-99999999 AS CEP_Loja,
-       cl.NOMBRECLIENTE      				AS Nome,
-       fj.NUMERODOCUMENTO    				AS CPF,
-       en.TIPO_LOG + ' ' + en.LOGRADOURO  	AS Logradouro,
-       en.NUMERO							AS Numero_Residencia,
-       en.COMPLEMENTO						AS Complemento_Residencia,
-       en.CODIGOPOSTAL						AS CEP_Residencia,
-       en.BAIRRO							AS Bairro_Residencia,
-       en.CIDADE							AS Cidade_Residencia,
-       en.UF 								AS UF_Residencia,	
-       fr.RENDA_BRUTA * 100					AS Renda,
-       ((sd.C1604 * (-1)) + sd.C1609) * 100 AS Sld_Dev_Ctb,
+    <sql>USE CARREFOUR;
+SELECT sd.JTS_OID,
+     SD.C1632,
+     SD.C1633,
+--     sc.CNPJ                                      AS CNPJ_Loja,
+       '08357240000150'                             AS CNPJ_Loja,
+--     sc.NOMBRECIUDAD                              AS Municipio_Loja,
+       'São Paulo'                           		AS Municipio_Loja,
+ --    sc.UF                                        AS UF_Loja,
+       'SP'                                  		AS UF_Loja,
+ --    sc.CODIGOPOSTAL                              AS CEP_Loja,
+       '04583110'                                   AS CEP_Loja,
+       cl.NOMBRECLIENTE                             AS Nome,
+       fj.NUMERODOCUMENTO                           AS CPF,
+       en.TIPO_LOG + ' ' + en.LOGRADOURO            AS Logradouro_Residencia,
+       en.NUMERO                                    AS Numero_Residencia,
+       en.COMPLEMENTO                               AS Complemento_Residencia,
+       en.CODIGOPOSTAL                              AS CEP_Residencia,
+       en.BAIRRO                                    AS Bairro_Residencia,
+       en.CIDADE                                    AS Cidade_Residencia,
+       en.UF                                        AS UF_Residencia,
+       fr.RENDA_BRUTA * 100                         AS Renda,
+       ((sd.C1604 * (-1)) + sd.C1609) * 100         AS Sld_Dev_Ctb,
 /* ------
-	Selects com SUM
+Selects com SUM
    ------ */
-       sd.OPERACION							AS Nro_Contrato,
-       'ATIVO'								AS Status_Contrato,
-       0									AS Vlr_Refinanc,
-       'DESCONTO EM FOLHA'					AS Tipo_Pagto,
-       sd.C1730								AS Conta_Ctb, 
-       'D' 									AS Deb_Cred,
+       sd.OPERACION                                 AS Nro_Contrato,  
+       CASE
+         WHEN SD.C1604 &lt;&gt; 0 AND NOT EXISTS (SELECT pl.SALDO_JTS_OID
+                                              FROM PLANPAGOS pl
+                                             WHERE pl.SALDO_JTS_OID = sd.JTS_OID             AND      
+                                                   pl.C2302_ORIGINAL &lt; convert(varchar, (SELECT fechaprocesoanterior FROM PARAMETROS), 103))  
+                                                    THEN 'Em atraso'
+         WHEN SD.C1604 &lt;&gt; 0 AND EXISTS (SELECT pl.SALDO_JTS_OID
+                                          FROM PLANPAGOS pl
+                                         WHERE pl.SALDO_JTS_OID = sd.JTS_OID                 AND      
+                                               pl.C2302_ORIGINAL &lt; convert(varchar, (SELECT fechaprocesoanterior FROM PARAMETROS), 103))  
+                                                    THEN 'Ativo'
+         WHEN (SD.C1604 = 0 AND PZ.MOTIVO_BAJA > 0) THEN 'Cancelado'
+         ELSE 'Liquidado'
+       END                                          AS Status_Contrato,
+       0                                            AS Vlr_Refinanc,
+       'DESCONTO EM FOLHA'                          AS Tipo_Pagto,
+       sd.C1730                                     AS Conta_Ctb,
+       'D'                                          AS Deb_Cred,
        (SELECT sum(pp.C2309 + pp.C2310)
           FROM PLANPAGOS pp
          WHERE sd.JTS_OID = pp.SALDO_JTS_OID
-           AND pp.C2309 + pp.C2310 != 0) * 100
-                             				AS Vlr_Contr_Futuro,
+           AND (pp.C2309 + pp.C2310 != 0)) * 100
+                                                    AS Vlr_Contr_Futuro,
        (SELECT sum(isnull(de.CAPITALADELANTADO, 0) + isnull(de.CAPITALPAGADO, 0))
           FROM PLANPAGOS pp
-               LEFT OUTER JOIN BS_PAYS_DETAIL de    ON sd.JTS_OID = de.SALDOS_JTS_OID AND
-                                                       pp.C2300   = de.CUOTA          AND
-                                                       de.CAMBIA_IMPORTE_SALDO_CUOTA = 'S' AND
+               LEFT OUTER JOIN BS_PAYS_DETAIL de    ON sd.JTS_OID = de.SALDOS_JTS_OID       AND
+                                                       pp.C2300   = de.CUOTA                AND
+                                                       de.CAMBIA_IMPORTE_SALDO_CUOTA = 'S'  AND
                                                        de.TZ_LOCK = 0
          WHERE sd.JTS_OID = pp.SALDO_JTS_OID
            AND pp.C2309 + pp.C2310 = 0) * 100
-                             				AS Vlr_Pago_Princ,
+                                                    AS Vlr_Pago_Princ,
        (SELECT sum(de.CAPITALADELANTADO + de.CAPITALPAGADO + de.INTERESPAGADO)
           FROM PLANPAGOS pp
-               LEFT OUTER JOIN BS_PAYS_DETAIL de    ON sd.JTS_OID = de.SALDOS_JTS_OID AND
-                                                       pp.C2300   = de.CUOTA          AND
-                                                       de.CAMBIA_IMPORTE_SALDO_CUOTA = 'S' AND
+               LEFT OUTER JOIN BS_PAYS_DETAIL de    ON sd.JTS_OID = de.SALDOS_JTS_OID       AND
+                                                       pp.C2300   = de.CUOTA                AND
+                                                       de.CAMBIA_IMPORTE_SALDO_CUOTA = 'S'  AND
                                                        de.TZ_LOCK = 0
          WHERE sd.JTS_OID = pp.SALDO_JTS_OID
            AND pp.C2309 + pp.C2310 = 0
            AND de.FECHAVALOR &lt; pp.C2302_ORIGINAL) * 100
-                             				AS Vlr_Parc_Antec,
+                                                    AS Vlr_Parc_Antec,
        (SELECT count(*)
           FROM PLANPAGOS pp
-               LEFT OUTER JOIN BS_PAYS_DETAIL de    ON sd.JTS_OID = de.SALDOS_JTS_OID AND
-                                                       pp.C2300   = de.CUOTA          AND
-                                                       de.CAMBIA_IMPORTE_SALDO_CUOTA = 'S' AND
+               LEFT OUTER JOIN BS_PAYS_DETAIL de    ON sd.JTS_OID = de.SALDOS_JTS_OID       AND
+                                                       pp.C2300   = de.CUOTA                AND
+                                                       de.CAMBIA_IMPORTE_SALDO_CUOTA = 'S'  AND
                                                        de.TZ_LOCK = 0
          WHERE sd.JTS_OID = pp.SALDO_JTS_OID
            AND pp.C2309 + pp.C2310 = 0
            AND de.FECHAVALOR &lt; pp.C2302_ORIGINAL)
-                             				AS Qtd_Parc_Antec,
-       CONVERT(VARCHAR, sd.C1620 , 103)		AS Dt_Contrato,
+                                                    AS Qtd_Parc_Antec,
+       CONVERT(VARCHAR, sd.C1620 , 103)             AS Dt_Contrato,
        CASE
          WHEN (SD.C1604 = 0 AND PZ.MOTIVO_BAJA = 1) THEN 'DESACORDO COMERCIAL'
          WHEN (SD.C1604 = 0 AND PZ.MOTIVO_BAJA = 2) THEN 'CONDICOES CONTRATACAO'
          WHEN (SD.C1604 = 0 AND PZ.MOTIVO_BAJA = 3) THEN 'CONTRATACAO INDEVIDA'
-		 ELSE '' 
-       END 									AS Motivo_Cancelamento,
+       ELSE ''
+       END                                          AS Motivo_Cancelamento,
        CASE
-         WHEN (CE.TIPOESPECIE = 3) THEN 'APOSENTADO'
-         WHEN (CE.TIPOESPECIE = 8) THEN 'PENSIONISTA'
+         WHEN (CE.TIPOESPECIE = 3)                  THEN 'APOSENTADO'
+         WHEN (CE.TIPOESPECIE = 8)                  THEN 'PENSIONISTA'
          ELSE 'OUTROS'
-       END 									AS Ocupacao,  
-       sd.C1612 * 100            			AS Vlr_Mensal_Parcela,
-       convert(varchar, (SELECT fechaprocesoanterior FROM PARAMETROS), 103) 
-                             				AS Dt_Referencia,
+       END                                          AS Ocupacao,
+       CASE
+         WHEN (SD.C1604 &lt;&gt; 0)                       THEN sd.C1612 * 100
+         ELSE 0  
+       END                                          AS Vlr_Mensal_Parcela,
+       convert(varchar, (SELECT fechaprocesoanterior FROM PARAMETROS), 103)
+                                                    AS Dt_Referencia,
        '${TOPAZ_FILE_OUTPUT}' + '/INTEGRACAO_BI_' + convert(varchar, convert(date, (SELECT fechaprocesoanterior FROM PARAMETROS)) )
-                             				AS Nome_arquivo,
-       convert(varchar, getdate(), 103) 
-                             				AS Dt_Sistema
-FROM SALDOS sd
-       INNER JOIN SUCURSALES sc ON sd.SUCURSAL = sc.SUCURSAL AND sc.TZ_LOCK = 0
+                                                    AS Nome_arquivo,
+       convert(varchar, getdate(), 103)
+                                                    AS Dt_Sistema
+  FROM SALDOS sd
+       INNER JOIN SUCURSALES sc                     ON sd.SUCURSAL = sc.SUCURSAL AND sc.TZ_LOCK = 0
 -- Viviane
-        LEFT JOIN PZO_SALDOS PZ ON SD.JTS_OID = PZ.SALDO_JTS_OID
-         AND PZ.TZ_LOCK = 0
-       INNER JOIN CLI_CLIENTES cl ON sd.C1803 = cl.CODIGOCLIENTE
-       INNER JOIN CLI_CLIENTEPERSONA cp ON cl.CODIGOCLIENTE = cp.CODIGOCLIENTE
-       INNER JOIN CLI_DOCUMENTOSPFPJ fj ON cp.NUMEROPERSONA = fj.NUMEROPERSONAFJ AND
-                                           fj.TIPODOCUMENTO = 'CPF' AND
-                                           fj.TZ_LOCK       = 0
+        LEFT JOIN PZO_SALDOS pz                     ON sd.JTS_OID = pz.SALDO_JTS_OID AND pz.TZ_LOCK = 0
+       INNER JOIN CLI_CLIENTES cl                   ON sd.C1803 = cl.CODIGOCLIENTE
+       INNER JOIN CLI_CLIENTEPERSONA cp             ON cl.CODIGOCLIENTE = cp.CODIGOCLIENTE
+       INNER JOIN CLI_DOCUMENTOSPFPJ fj             ON cp.NUMEROPERSONA = fj.NUMEROPERSONAFJ   AND
+                                                       fj.TIPODOCUMENTO = 'CPF'                AND
+                                                       fj.TZ_LOCK       = 0
 -- Viviane
-   	   LEFT JOIN PPN_MATRICULA MA ON MA.MATRICULABENEFICIARIO = SD.MATRICULA
-         AND MA.TZ_LOCK = 0
-         AND MA.CODIGOCONVENIO = SD.C1772
-       LEFT JOIN PPN_CODIGOS_ESPECIES CE ON CE.CODIGOESPECIE = MA.CODIGOESPECIE
-        AND CE.TZ_LOCK = 0 
+        LEFT JOIN PPN_MATRICULA MA                  ON MA.MATRICULABENEFICIARIO = SD.MATRICULA AND
+                                                       MA.TZ_LOCK = 0                          AND
+                                                       MA.CODIGOCONVENIO = SD.C1772
+        LEFT JOIN PPN_CODIGOS_ESPECIES CE           ON CE.CODIGOESPECIE = MA.CODIGOESPECIE
+         AND CE.TZ_LOCK = 0
 
---       LEFT OUTER JOIN CLI_ENDERECO_PESSOA en ON en.NUMEROPESSOA = cp.NUMEROPERSONA AND en.TZ_LOCK = 0
-		LEFT JOIN CLI_ENDERECO_PESSOA EN ON EN.NUMEROPESSOA = fj.NUMEROPERSONAFJ  -- Tabela CLI_DOCUMENTOSPFPJ
-         AND EN.TIPOENDERECO = 1
-         AND EN.TZ_LOCK = 0      
-         AND EN.ORDINAL = (SELECT MAX(ENDE.ORDINAL)
-                            FROM dbo.CLI_ENDERECO_PESSOA ENDE
-                           WHERE ENDE.NUMEROPESSOA = EN.NUMEROPESSOA
-                             AND ENDE.TIPOENDERECO = 1
-                           GROUP BY ENDE.NUMEROPESSOA) 
-
-       LEFT OUTER JOIN CLI_FONTE_RENDA fr ON cp.NUMEROPERSONA = fr.NRO_PESSOA AND fr.TZ_LOCK = 0
+       LEFT OUTER JOIN CLI_ENDERECO_PESSOA en       ON en.NUMEROPESSOA = cp.NUMEROPERSONA      AND
+                                                       en.TZ_LOCK = 0                          AND
+                                                       en.TIPOENDERECO = 1                     AND
+                                                       en.ORDINAL = (SELECT MAX(ENDE.ORDINAL)
+                                                                       FROM dbo.CLI_ENDERECO_PESSOA ENDE
+                                                                      WHERE ENDE.NUMEROPESSOA = en.NUMEROPESSOA
+                                                                        AND ENDE.TIPOENDERECO = 1
+                                                                      GROUP BY ENDE.NUMEROPESSOA)
+       LEFT OUTER JOIN CLI_FONTE_RENDA fr           ON cp.NUMEROPERSONA = fr.NRO_PESSOA AND fr.TZ_LOCK = 0
  WHERE sd.C1785 = 5
-   AND sd.C1604 != 0
 ORDER BY sd.JTS_OID</sql>
     <limit>0</limit>
     <lookup/>
@@ -973,7 +983,7 @@ ORDER BY sd.JTS_OID</sql>
     <enclosure>"</enclosure>
     <enclosure_forced>N</enclosure_forced>
     <enclosure_fix_disabled>N</enclosure_fix_disabled>
-    <header>N</header>
+    <header>Y</header>
     <footer>N</footer>
     <format>DOS</format>
     <compression>None</compression>
@@ -1073,7 +1083,7 @@ ORDER BY sd.JTS_OID</sql>
         <precision>-1</precision>
       </field>
       <field>
-        <name>Logradouro</name>
+        <name>Logradouro_Residencia</name>
         <type>String</type>
         <format/>
         <currency/>

@@ -553,8 +553,8 @@
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>crdPesCnApINSS Dia</from>
-      <to>crdPesCnApINSS Mes</to>
+      <from>crdPesN.Csng Dia</from>
+      <to>crdPesN.Cnsg Mes</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
@@ -633,13 +633,13 @@
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>crdPesCnApINSS Mes</from>
+      <from>crdPesN.Cnsg Mes</from>
       <to>Agrupa por Data</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
       <from>Dados Dias normais</from>
-      <to>crdPesCnApINSS Dia</to>
+      <to>crdPesN.Csng Dia</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
@@ -689,7 +689,7 @@
     </hop>
     <hop>
       <from>&gt; 90</from>
-      <to>crdPesCnApINSS Dia</to>
+      <to>crdPesN.Csng Dia</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
@@ -927,14 +927,14 @@ WHERE
     </group>
     <fields>
       <field>
-        <aggregate>crdPesConApoINSSDiario</aggregate>
-        <subject>crdPesConApoINSSDiarioW</subject>
+        <aggregate>crdPesNaoConsignadoDiario</aggregate>
+        <subject>crdPesNaoConsignadoDiarioW</subject>
         <type>FIRST_INCL_NULL</type>
         <valuefield/>
       </field>
       <field>
-        <aggregate>crdPesConApoINSSMensal</aggregate>
-        <subject>crdPesConApoINSSMensalW</subject>
+        <aggregate>crdPesNaoConsignadoMensal</aggregate>
+        <subject>crdPesNaoConsignadoMensalW</subject>
         <type>FIRST_INCL_NULL</type>
         <valuefield/>
       </field>
@@ -1276,14 +1276,14 @@ WHERE
       </field>
       <field>
         <name>DATA_PROC</name>
-        <type>String</type>
-        <format/>
+        <type>Date</type>
+        <format>yyyyMMdd</format>
         <currency/>
         <decimal/>
         <group/>
         <nullif/>
         <trim_type>none</trim_type>
-        <length>-1</length>
+        <length>8</length>
         <precision>-1</precision>
       </field>
     </fields>
@@ -1498,18 +1498,24 @@ FROM empresas EMP
     0                                                   AS sldadquirido,
     round((SUM(tbl.principal + tbl.jrs + tbl.mora)), 2) AS sldcarativa,
     0                                                   AS sldcedido,
-	ROUND(
-		CASE
-			WHEN SUM(tbl.qtdNov) > 0 THEN 
-				(POWER	((SUM(ISNULL(tbl.iof, 0)) / (SUM(ISNULL(tbl.principal1, 0)) + SUM(ISNULL(tbl.iof, 0))) + 1),
-						(360 /(SUM(cast(isnull(prazo,0) as decimal)) / (sum(qtdNov) - (SELECT isnull(count(*), 0)
-																						FROM VW_REL_CANCELAMENTO d
-																						WHERE	d.datacontratacao = tbl.data_base
-																							AND d.datacancelamento = tbl.data_base)
-				)))) -1) * 100
-			ELSE 0
-		END , 2)										AS txMedEncFiscais,
-	'0.00'												AS txMedEncOperacionais,
+    round((
+        CASE
+            WHEN SUM(tbl.qtdnov) > 0 THEN
+                (power(SUM(CAST(coalesce(tbl.iof, 0) AS DECIMAL)) / (SUM(CAST(coalesce(tbl.principal1, 1) AS DECIMAL)) + SUM(CAST(coalesce(
+                tbl.iof, 0) AS DECIMAL))) + 1,(360 /(round((SUM(CAST(coalesce(tbl.prazo, 1) AS DECIMAL)) /(SUM(tbl.qtdnov) - (
+                    SELECT
+                        coalesce(COUNT(*), 0)
+                    FROM
+                        vw_rel_cancelamento d
+                    WHERE
+                            d.datacontratacao = tbl.data_base
+                        AND d.datacancelamento = tbl.data_base
+                ))), 2)))) - 1 * 100)
+            ELSE
+                0
+        END
+    ), 2)                                               AS txmedencfiscais, 
+    '0.00'                                              AS txmedencoperacionais, 
     CASE
         WHEN SUM(tbl.qtdnov) > 0 THEN
             SUM(coalesce(tbl.txd, 0)) / ( SUM(tbl.qtdnov) - (
@@ -1523,17 +1529,17 @@ FROM empresas EMP
             ) )
         ELSE
             0
-    END                                                 AS txmedjuros,
+    END                                                 AS txmedjuros, 
     CASE
         WHEN SUM(tbl.qtdnov) > 0 THEN
-         round	((SUM(tbl.principal1) + SUM(coalesce(tbl.iof, cast('0' as decimal(15,2)))) -
+         round	((SUM(tbl.principal1) + -SUM(coalesce(tbl.iof, cast('0' as decimal(15,2)))) -
 					(SELECT coalesce(SUM(d.valorfinanciado), cast('0' as decimal(15,2)))
 						FROM vw_rel_cancelamento d
 						WHERE	d.datacontratacao = tbl.data_base
 							AND d.datacancelamento = tbl.data_base)
 					), 2)
         ELSE
-            cast('0' as decimal(15,2))
+            cast('10.15' as decimal(15,2))
     END                                             AS vlrconcessoes 
 FROM
     (
@@ -2008,7 +2014,7 @@ ORDER BY
         <precision>-1</precision>
       </field>
       <field>
-        <name>crdPesConApoINSSDiario</name>
+        <name>crdPesNaoConsignadoDiario</name>
         <type>String</type>
         <format/>
         <currency/>
@@ -2204,7 +2210,7 @@ ORDER BY
         <precision>-1</precision>
       </field>
       <field>
-        <name>crdPesConApoINSSMensal</name>
+        <name>crdPesNaoConsignadoMensal</name>
         <type>String</type>
         <format/>
         <currency/>
@@ -2705,7 +2711,7 @@ FROM
       <meta>
         <name>DATA_PROC1</name>
         <rename>DATA_PROC</rename>
-        <type>String</type>
+        <type>Date</type>
         <length>-2</length>
         <precision>-2</precision>
         <conversion_mask>yyyyMMdd</conversion_mask>
@@ -3138,10 +3144,10 @@ WHERE
         <name>dataRef</name>
       </field>
       <field>
-        <name>crdPesConApoINSSDiario</name>
+        <name>crdPesNaoConsignadoDiario</name>
       </field>
       <field>
-        <name>crdPesConApoINSSMensal</name>
+        <name>crdPesNaoConsignadoMensal</name>
       </field>
       <field>
         <name>referencia</name>
@@ -3187,7 +3193,7 @@ WHERE
     </GUI>
   </step>
   <step>
-    <name>crdPesCnApINSS Dia</name>
+    <name>crdPesN.Cnsg Mes</name>
     <type>AddXML</type>
     <description/>
     <distribute>Y</distribute>
@@ -3198,8 +3204,126 @@ WHERE
       <schema_name/>
     </partitioning>
     <encoding>UTF-8</encoding>
-    <valueName>crdPesConApoINSSDiarioW</valueName>
-    <xml_repeat_element>crdPesConApoINSS</xml_repeat_element>
+    <valueName>crdPesNaoConsignadoMensalW</valueName>
+    <xml_repeat_element>crdPesNaoConsignado</xml_repeat_element>
+    <file>
+      <omitXMLheader>Y</omitXMLheader>
+      <omitNullValues>N</omitNullValues>
+    </file>
+    <fields>
+      <field>
+        <name>sldBaiPrejuizo</name>
+        <element/>
+        <type>Integer</type>
+        <format>0</format>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <attribute>Y</attribute>
+        <attributeParentName/>
+      </field>
+      <field>
+        <name>sldCarAte14</name>
+        <element/>
+        <type>Integer</type>
+        <format>0</format>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <attribute>Y</attribute>
+        <attributeParentName/>
+      </field>
+      <field>
+        <name>sldCarAte60</name>
+        <element/>
+        <type>Integer</type>
+        <format>0</format>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <attribute>Y</attribute>
+        <attributeParentName/>
+      </field>
+      <field>
+        <name>sldCarAte90</name>
+        <element/>
+        <type>Integer</type>
+        <format>0</format>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <attribute>Y</attribute>
+        <attributeParentName/>
+      </field>
+      <field>
+        <name>sldCarMaior90</name>
+        <element/>
+        <type>Integer</type>
+        <format>0</format>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <attribute>Y</attribute>
+        <attributeParentName/>
+      </field>
+      <field>
+        <name>przMedCarteira</name>
+        <element/>
+        <type>None</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <attribute>Y</attribute>
+        <attributeParentName/>
+      </field>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>990</xloc>
+      <yloc>256</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>crdPesN.Csng Dia</name>
+    <type>AddXML</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <encoding>UTF-8</encoding>
+    <valueName>crdPesNaoConsignadoDiarioW</valueName>
+    <xml_repeat_element>crdPesNaoConsignado</xml_repeat_element>
     <file>
       <omitXMLheader>Y</omitXMLheader>
       <omitNullValues>N</omitNullValues>
@@ -3328,124 +3452,6 @@ WHERE
     </remotesteps>
     <GUI>
       <xloc>833</xloc>
-      <yloc>256</yloc>
-      <draw>Y</draw>
-    </GUI>
-  </step>
-  <step>
-    <name>crdPesCnApINSS Mes</name>
-    <type>AddXML</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <encoding>UTF-8</encoding>
-    <valueName>crdPesConApoINSSMensalW</valueName>
-    <xml_repeat_element>crdPesConApoINSS</xml_repeat_element>
-    <file>
-      <omitXMLheader>Y</omitXMLheader>
-      <omitNullValues>N</omitNullValues>
-    </file>
-    <fields>
-      <field>
-        <name>sldBaiPrejuizo</name>
-        <element/>
-        <type>Integer</type>
-        <format>0</format>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <attribute>Y</attribute>
-        <attributeParentName/>
-      </field>
-      <field>
-        <name>sldCarAte14</name>
-        <element/>
-        <type>Integer</type>
-        <format>0</format>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <attribute>Y</attribute>
-        <attributeParentName/>
-      </field>
-      <field>
-        <name>sldCarAte60</name>
-        <element/>
-        <type>Integer</type>
-        <format>0</format>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <attribute>Y</attribute>
-        <attributeParentName/>
-      </field>
-      <field>
-        <name>sldCarAte90</name>
-        <element/>
-        <type>Integer</type>
-        <format>0</format>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <attribute>Y</attribute>
-        <attributeParentName/>
-      </field>
-      <field>
-        <name>sldCarMaior90</name>
-        <element/>
-        <type>Integer</type>
-        <format>0</format>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <attribute>Y</attribute>
-        <attributeParentName/>
-      </field>
-      <field>
-        <name>przMedCarteira</name>
-        <element/>
-        <type>None</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <attribute>Y</attribute>
-        <attributeParentName/>
-      </field>
-    </fields>
-    <attributes/>
-    <cluster_schema/>
-    <remotesteps>
-      <input>
-      </input>
-      <output>
-      </output>
-    </remotesteps>
-    <GUI>
-      <xloc>990</xloc>
       <yloc>256</yloc>
       <draw>Y</draw>
     </GUI>
