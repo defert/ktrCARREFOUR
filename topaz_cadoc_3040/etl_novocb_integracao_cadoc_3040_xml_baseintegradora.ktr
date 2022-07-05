@@ -16,7 +16,7 @@
       </parameter>
       <parameter>
         <name>DT_REFERENCIA</name>
-        <default_value>20220516</default_value>
+        <default_value>20210728</default_value>
         <description/>
       </parameter>
     </parameters>
@@ -491,7 +491,7 @@
   <connection>
     <name>TopazDS</name>
     <server>${TOPAZ_HOST}</server>
-    <type>MSSQLNATIVE</type>
+    <type>MSSQL</type>
     <access>Native</access>
     <database>${TOPAZ_DB}</database>
     <port>1433</port>
@@ -512,10 +512,6 @@
       <attribute>
         <code>IS_CLUSTERED</code>
         <attribute>N</attribute>
-      </attribute>
-      <attribute>
-        <code>MSSQLUseIntegratedSecurity</code>
-        <attribute>false</attribute>
       </attribute>
       <attribute>
         <code>MSSQL_DOUBLE_DECIMAL_SEPARATOR</code>

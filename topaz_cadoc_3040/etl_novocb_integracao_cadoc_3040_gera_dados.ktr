@@ -438,7 +438,7 @@
   <connection>
     <name>TopazDS</name>
     <server>${TOPAZ_HOST}</server>
-    <type>MSSQLNATIVE</type>
+    <type>MSSQL</type>
     <access>Native</access>
     <database>${TOPAZ_DB}</database>
     <port>1433</port>
@@ -459,10 +459,6 @@
       <attribute>
         <code>IS_CLUSTERED</code>
         <attribute>N</attribute>
-      </attribute>
-      <attribute>
-        <code>MSSQLUseIntegratedSecurity</code>
-        <attribute>false</attribute>
       </attribute>
       <attribute>
         <code>MSSQL_DOUBLE_DECIMAL_SEPARATOR</code>
@@ -508,7 +504,7 @@
       <schema_name/>
     </partitioning>
     <connection>TopazDS</connection>
-    <procedure>topaz.dbo.SP_GERA_DADOS_3040;1</procedure>
+    <procedure>SP_GERA_DADOS_3040;1</procedure>
     <lookup>
     </lookup>
     <result>
