@@ -471,7 +471,7 @@
       </attribute>
       <attribute>
         <code>PRESERVE_RESERVED_WORD_CASE</code>
-        <attribute>N</attribute>
+        <attribute>Y</attribute>
       </attribute>
       <attribute>
         <code>QUOTE_ALL_FIELDS</code>
@@ -932,7 +932,7 @@ Selects com SUM
                                                        fj.TIPODOCUMENTO = 'CPF'                AND
                                                        fj.TZ_LOCK       = 0
 -- Viviane
-        LEFT JOIN PPN_MATRICULA MA                  ON MA.MATRICULABENEFICIARIO = SD.MATRICULA AND
+        LEFT JOIN PPN_MATRICULA MA                  ON convert(int, MA.MATRICULABENEFICIARIO) = SD.MATRICULA AND
                                                        MA.TZ_LOCK = 0                          AND
                                                        MA.CODIGOCONVENIO = SD.C1772
         LEFT JOIN PPN_CODIGOS_ESPECIES CE           ON CE.CODIGOESPECIE = MA.CODIGOESPECIE

@@ -1705,7 +1705,7 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <filename>C:\Users\sidne\OneDrive - TOPAZ\Carrefour\Pentaho\Kettle_Workspace\TOPAZ\FILE_INPUT\contabilidade\SUBECO11.B934.D0000080</filename>
+    <filename>C:\Users\sidne\OneDrive - TOPAZ\Carrefour\CNAB 240\Arquivos\HMLECO11.B368.D0000001</filename>
     <line_width>240</line_width>
     <header>N</header>
     <buffer_size>50000</buffer_size>

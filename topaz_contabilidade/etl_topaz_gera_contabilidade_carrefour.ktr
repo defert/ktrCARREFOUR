@@ -444,7 +444,7 @@
   <connection>
     <name>TopazDS</name>
     <server>${TOPAZ_HOST}</server>
-    <type>MSSQLNATIVE</type>
+    <type>MSSQL</type>
     <access>Native</access>
     <database>${TOPAZ_DB}</database>
     <port>1433</port>
@@ -465,10 +465,6 @@
       <attribute>
         <code>IS_CLUSTERED</code>
         <attribute>N</attribute>
-      </attribute>
-      <attribute>
-        <code>MSSQLUseIntegratedSecurity</code>
-        <attribute>false</attribute>
       </attribute>
       <attribute>
         <code>MSSQL_DOUBLE_DECIMAL_SEPARATOR</code>
@@ -1215,7 +1211,7 @@
       <schema_name/>
     </partitioning>
     <connection>TopazDS</connection>
-    <sql>SELECT MC.OPERACION, MC.COD_TRANSACCION,
+    <sql>SELECT  MC.OPERACION, MC.COD_TRANSACCION,
 	'0004667'											AS COD_EMPRESA,
 	'O'													AS COD_TIPO_CONTABIL,
 	'00000001'											AS NUM_GUIA,
@@ -1245,7 +1241,7 @@
 		AS NOME_ARQUIVO
 
 FROM MOVIMIENTOS_CONTABLES MC
-	INNER JOIN EMPRESAS E 
+INNER JOIN EMPRESAS E 
 	ON MC.EMPRESA = E.EMPRESA  
 INNER JOIN  ASIENTOS A 
     ON  MC.FECHAPROCESO = A.FECHAPROCESO
@@ -1259,7 +1255,7 @@ LEFT JOIN  TTR_TRANSACCIONES_SIST_EXT TT
     ON  TT.CODIGO_OPERACION = MC.OPERACION
     AND TT.CODIGO_TTR = MC.COD_TRANSACCION
     AND TT.SISTEMA_EXTERNO = 'CTB'
-GROUP BY MC.RUBROCONTABLE, PC.C6326, MC.FECHAPROCESO, MC.DEBITOCREDITO, TT.DESCRIPCION, E.EMPRESA, MC.OPERACION, MC.COD_TRANSACCION</sql>
+GROUP BY MC.RUBROCONTABLE, PC.C6326, MC.FECHAPROCESO, MC.DEBITOCREDITO, TT.DESCRIPCION, E.EMPRESA , MC.OPERACION, MC.COD_TRANSACCION</sql>
     <limit>0</limit>
     <lookup/>
     <execute_each_row>N</execute_each_row>

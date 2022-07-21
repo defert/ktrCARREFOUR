@@ -11,7 +11,7 @@
     <parameters>
       <parameter>
         <name>data_ref</name>
-        <default_value>29/07/2021</default_value>
+        <default_value/>
         <description>dd/MM/yyyy</description>
       </parameter>
     </parameters>
@@ -476,7 +476,7 @@
       </attribute>
       <attribute>
         <code>PRESERVE_RESERVED_WORD_CASE</code>
-        <attribute>N</attribute>
+        <attribute>Y</attribute>
       </attribute>
       <attribute>
         <code>QUOTE_ALL_FIELDS</code>
@@ -1494,7 +1494,7 @@ FROM empresas EMP
             ELSE
                 0
         END
-    ), 2)                                               AS przdecmedconcessoes, 
+    ), 0)                                               AS przdecmedconcessoes, 
     0                                                   AS sldadquirido,
     round((SUM(tbl.principal + tbl.jrs + tbl.mora)), 2) AS sldcarativa,
     0                                                   AS sldcedido,
@@ -1625,7 +1625,7 @@ ORDER BY
       </output>
     </remotesteps>
     <GUI>
-      <xloc>676</xloc>
+      <xloc>672</xloc>
       <yloc>96</yloc>
       <draw>Y</draw>
     </GUI>
@@ -1867,7 +1867,7 @@ ORDER BY
       </output>
     </remotesteps>
     <GUI>
-      <xloc>676</xloc>
+      <xloc>672</xloc>
       <yloc>512</yloc>
       <draw>Y</draw>
     </GUI>
@@ -2373,7 +2373,7 @@ FROM
     <connection>TopazDS</connection>
     <sql>SELECT 
 	CASE 
-	WHEN '${data_ref}' = '' THEN (select FORMAT (getdate(), 'dd/MM/yyyy'))
+	WHEN '${data_ref}' = '' THEN (select FORMAT (fechaprocesoanterior, 'dd/MM/yyyy'))
  	ELSE '${data_ref}'
 	END AS DATA_REF
 	FROM PARAMETROS</sql>
@@ -2407,7 +2407,7 @@ FROM
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <encoding>ISO-8859-1</encoding>
+    <encoding>UTF-8</encoding>
     <valueName>preparaHeaderW</valueName>
     <xml_repeat_element>DocTXB</xml_repeat_element>
     <file>
