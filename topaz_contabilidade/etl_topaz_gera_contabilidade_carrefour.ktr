@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <transformation>
   <info>
-    <name>etl_topaz_gera_contabilidade_credsis</name>
+    <name>etl_topaz_gera_contabilidade_carrefour</name>
     <description/>
     <extended_description/>
     <trans_version/>
@@ -518,11 +518,6 @@
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Join</from>
-      <to>Nome Arquivo</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
       <from>Nome Arquivo</from>
       <to>Gera Arquivo</to>
       <enabled>Y</enabled>
@@ -530,6 +525,16 @@
     <hop>
       <from>Movimento</from>
       <to>Converte Acentos</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Join</from>
+      <to>Valor > 0</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Valor > 0</from>
+      <to>Nome Arquivo</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -792,15 +797,15 @@
     <fields>
       <field>
         <name>COD_EMPRESA</name>
-        <type>Integer</type>
-        <format>0000000</format>
+        <type>String</type>
+        <format/>
         <currency/>
         <decimal>,</decimal>
         <group>.</group>
         <nullif/>
         <trim_type>none</trim_type>
         <length>7</length>
-        <precision>0</precision>
+        <precision>-1</precision>
       </field>
       <field>
         <name>COD_TIPO_CONTABIL</name>
@@ -852,27 +857,27 @@
       </field>
       <field>
         <name>COD_FILIAL</name>
-        <type>Integer</type>
-        <format>0000000</format>
+        <type>String</type>
+        <format/>
         <currency/>
         <decimal>,</decimal>
         <group>.</group>
         <nullif/>
         <trim_type>none</trim_type>
         <length>7</length>
-        <precision>0</precision>
+        <precision>-1</precision>
       </field>
       <field>
         <name>COD_CONTA_CONTABIL</name>
-        <type>Integer</type>
-        <format>000000000000000</format>
+        <type>String</type>
+        <format/>
         <currency/>
         <decimal>.</decimal>
         <group/>
         <nullif/>
         <trim_type>none</trim_type>
         <length>15</length>
-        <precision>0</precision>
+        <precision>-1</precision>
       </field>
       <field>
         <name>ID_CENTRO_CUSTO</name>
@@ -960,8 +965,8 @@
       </field>
       <field>
         <name>VLR</name>
-        <type>Integer</type>
-        <format>0000000000000</format>
+        <type>String</type>
+        <format/>
         <currency/>
         <decimal>,</decimal>
         <group>.</group>
@@ -1009,7 +1014,7 @@
       <field>
         <name>COD_CONTA_CONTRA</name>
         <type>Integer</type>
-        <format>000000000000000</format>
+        <format/>
         <currency/>
         <decimal/>
         <group/>
@@ -1033,7 +1038,7 @@
       <field>
         <name>COD_CENTRO_CUSTO</name>
         <type>Integer</type>
-        <format>00000000000000000000</format>
+        <format/>
         <currency/>
         <decimal/>
         <group/>
@@ -1064,7 +1069,7 @@
       </output>
     </remotesteps>
     <GUI>
-      <xloc>800</xloc>
+      <xloc>928</xloc>
       <yloc>80</yloc>
       <draw>Y</draw>
     </GUI>
@@ -1211,51 +1216,53 @@
       <schema_name/>
     </partitioning>
     <connection>TopazDS</connection>
-    <sql>SELECT  MC.OPERACION, MC.COD_TRANSACCION,
-	'0004667'											AS COD_EMPRESA,
-	'O'													AS COD_TIPO_CONTABIL,
-	'00000001'											AS NUM_GUIA,
-	'TPZ'												AS COD_SIS,
-	REPLICATE(' ', 6)            						AS NUM_LANC,
-	'0004668'											AS COD_FILIAL, 
-	CONVERT(FLOAT, PC.C6326)							AS COD_CONTA_CONTABIL, 
-	'020458'											AS ID_CENTRO_CUSTO,
-	REPLICATE(' ', 8)									AS COD_PROJETO,
-	FORMAT(MC.FECHAPROCESO,'yyyyMMdd')					AS DT_LANC_CONTABIL,
-	MC.DEBITOCREDITO 									AS TIPO_LANC,
-	REPLICATE(' ', 8)									AS COD_HIST_PADRAO,
-	'006'												AS REFERENCIA,
-	REPLICATE(' ', 8)									AS DT_CONVERSAO,
-	SUM(CONVERT (FLOAT, (MC.CAPITALREALIZADO * 100)))	AS VLR,
-	REPLICATE(' ', 20)									AS COMPLEMENTO,
-	TT.DESCRIPCION										AS HIST,
-	' '                     							AS IND_RATEIO,
-	REPLICATE(' ', 15)           						AS COD_CONTA_CONTRA,
-	REPLICATE(' ', 5)            						AS ID_CCUSTO_CONTRA,
-	'020458'											AS COD_CENTRO_CUSTO,
-	REPLICATE(' ', 15)									AS COD_CENTRO_CUSTO_CONTRA,
+    <sql>SELECT --MC.OPERACION, MC.COD_TRANSACCION, mc.asiento,A.ESTADO,
+	'4667   '																AS COD_EMPRESA,
+	'O'																		AS COD_TIPO_CONTABIL,
+	''																		AS NUM_GUIA,
+	'TPZ'																	AS COD_SIS,
+	REPLICATE(' ', 6)            											AS NUM_LANC,
+	'4668   '																AS COD_FILIAL, 
+	CONVERT(VARCHAR(15),PC.C6326)											AS COD_CONTA_CONTABIL, 
+	'20458 '																AS ID_CENTRO_CUSTO,
+	REPLICATE(' ', 8)														AS COD_PROJETO,
+	FORMAT(MC.FECHAPROCESO,'yyyyMMdd')										AS DT_LANC_CONTABIL,
+	MC.DEBITOCREDITO 														AS TIPO_LANC,
+	REPLICATE(' ', 8)														AS COD_HIST_PADRAO,
+	'006'																	AS REFERENCIA,
+	REPLICATE(' ', 8)														AS DT_CONVERSAO,
+	CONVERT(VARCHAR(13),SUM(CONVERT (INT, (MC.CAPITALREALIZADO * 100))))	AS VLR,
+	REPLICATE(' ', 20)														AS COMPLEMENTO,
+	TT.DESCRIPCION															AS HIST,
+	'N'                     												AS IND_RATEIO,
+	REPLICATE(' ', 15)           											AS COD_CONTA_CONTRA,
+	REPLICATE(' ', 5)            											AS ID_CCUSTO_CONTRA,
+	'20458               '													AS COD_CENTRO_CUSTO,
+	REPLICATE(' ', 20)														AS COD_CENTRO_CUSTO_CONTRA,
+				
 	REPLACE('CONTABIL' + '_' +  RIGHT(REPLICATE('0', 4) + 
---		CONVERT(VARCHAR, E.EMPRESA), 4) + '_' + 
-		CONVERT(VARCHAR, 0004667), 4) + '_' + 
+		CONVERT(VARCHAR, E.EMPRESA), 4) + '_' + 
+--		CONVERT(VARCHAR, 0004667), 4) + '_' + 
 		CONVERT(VARCHAR(10),(CASE WHEN '${pDATABASE}' = '' THEN (SELECT FECHAPROCESOANTERIOR FROM PARAMETROS ) ELSE CONVERT(DATETIME, '${pDATABASE}', 102) END), 103),'/','') 
 		AS NOME_ARQUIVO
 
 FROM MOVIMIENTOS_CONTABLES MC
-INNER JOIN EMPRESAS E 
+	INNER JOIN EMPRESAS E 
 	ON MC.EMPRESA = E.EMPRESA  
-INNER JOIN  ASIENTOS A 
+left JOIN  ASIENTOS A 
     ON  MC.FECHAPROCESO = A.FECHAPROCESO
     AND MC.SUCURSAL = A.SUCURSAL
     AND MC.ASIENTO = A.ASIENTO
     AND A.ESTADO = 77
- INNER JOIN PLANCTAS PC
+INNER JOIN PLANCTAS PC
     ON  PC.C6326 = MC.RUBROCONTABLE
     AND PC.TZ_LOCK = 0
 LEFT JOIN  TTR_TRANSACCIONES_SIST_EXT TT 
     ON  TT.CODIGO_OPERACION = MC.OPERACION
     AND TT.CODIGO_TTR = MC.COD_TRANSACCION
     AND TT.SISTEMA_EXTERNO = 'CTB'
-GROUP BY MC.RUBROCONTABLE, PC.C6326, MC.FECHAPROCESO, MC.DEBITOCREDITO, TT.DESCRIPCION, E.EMPRESA , MC.OPERACION, MC.COD_TRANSACCION</sql>
+WHERE mc.fechaproceso = (CASE WHEN '${pDATABASE}' = '' THEN (SELECT FECHAPROCESOANTERIOR FROM PARAMETROS ) ELSE CONVERT(DATETIME, '${pDATABASE}', 102) END)
+GROUP BY E.EMPRESA, MC.RUBROCONTABLE, PC.C6326, MC.FECHAPROCESO, MC.DEBITOCREDITO, TT.DESCRIPCION, E.EMPRESA --, MC.OPERACION, MC.COD_TRANSACCION, mc.asiento, A.ESTADO</sql>
     <limit>0</limit>
     <lookup/>
     <execute_each_row>N</execute_each_row>
@@ -1347,6 +1354,50 @@ GROUP BY MC.RUBROCONTABLE, PC.C6326, MC.FECHAPROCESO, MC.DEBITOCREDITO, TT.DESCR
       <targetFieldLength>0</targetFieldLength>
       <removeSelectedFields>N</removeSelectedFields>
     </ConcatFields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>800</xloc>
+      <yloc>80</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>Valor > 0</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to/>
+    <send_false_to/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>VLR</leftvalue>
+        <function>&gt;</function>
+        <rightvalue/>
+        <value>
+          <name>constant</name>
+          <type>String</type>
+          <text>0</text>
+          <length>-1</length>
+          <precision>-1</precision>
+          <isnull>N</isnull>
+          <mask/>
+        </value>
+      </condition>
+    </compare>
     <attributes/>
     <cluster_schema/>
     <remotesteps>
