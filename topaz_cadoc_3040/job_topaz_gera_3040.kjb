@@ -315,7 +315,7 @@
       <attributes/>
       <specification_method>filename</specification_method>
       <trans_object_id/>
-      <filename>C:\Users\sidne\OneDrive - TOPAZ\Carrefour\GitHub\ktrCARREFOUR\topaz_cadoc_3040\etl_novocb_integracao_cadoc_3040_gera_dados.ktr</filename>
+      <filename>${Internal.Entry.Current.Directory}/etl_novocb_integracao_cadoc_3040_gera_dados.ktr</filename>
       <transname/>
       <arg_from_previous>N</arg_from_previous>
       <params_from_previous>N</params_from_previous>
@@ -353,7 +353,7 @@
       <attributes/>
       <specification_method>filename</specification_method>
       <trans_object_id/>
-      <filename>C:\Users\sidne\OneDrive - TOPAZ\Carrefour\GitHub\ktrCARREFOUR\topaz_cadoc_3040\etl_novocb_integracao_cadoc_3040_empresas_xml.ktr</filename>
+      <filename>${Internal.Entry.Current.Directory}/etl_novocb_integracao_cadoc_3040_empresas_xml.ktr</filename>
       <transname/>
       <arg_from_previous>N</arg_from_previous>
       <params_from_previous>N</params_from_previous>
