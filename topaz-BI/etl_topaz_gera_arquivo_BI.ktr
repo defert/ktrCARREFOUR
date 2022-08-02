@@ -438,17 +438,21 @@
   </notepads>
   <connection>
     <name>TopazDS</name>
-    <server>${TOPAZ_HOST}</server>
+    <server>172.20.20.3</server>
     <type>MSSQL</type>
-    <access>Native</access>
-    <database>${TOPAZ_DB}</database>
+    <access>JNDI</access>
+    <database>TopazDS</database>
     <port>1433</port>
-    <username>${TOPAZ_USER}</username>
-    <password>${TOPAZ_PSWD}</password>
+    <username/>
+    <password>Encrypted </password>
     <servername/>
     <data_tablespace/>
     <index_tablespace/>
     <attributes>
+      <attribute>
+        <code>EXTRA_OPTION_MSSQL.instance</code>
+        <attribute>Topaz</attribute>
+      </attribute>
       <attribute>
         <code>FORCE_IDENTIFIERS_TO_LOWERCASE</code>
         <attribute>N</attribute>
@@ -541,8 +545,7 @@
     </partitioning>
     <connection>TopazDS</connection>
     <rowlimit>0</rowlimit>
-    <sql>use CARREFOUR;
-SELECT 
+    <sql>SELECT 
          (CASE
             WHEN PP.C2302_original >= (SELECT fechaprocesoanterior FROM PARAMETROS) -- a vencer
               THEN ROUND((pp.C2309 + pp.C2310) / (POWER((CAST(? AS DECIMAL(11,7) ) + (26 / 100)), (ABS(datediff(day, (SELECT fechaprocesoanterior FROM PARAMETROS),PP.C2302_original)) / 360))),2)
@@ -821,8 +824,7 @@ SELECT
       <schema_name/>
     </partitioning>
     <connection>TopazDS</connection>
-    <sql>USE CARREFOUR;
-SELECT sd.JTS_OID,
+    <sql>SELECT sd.JTS_OID,
      SD.C1632,
      SD.C1633,
 --     sc.CNPJ                                      AS CNPJ_Loja,
@@ -852,12 +854,14 @@ Selects com SUM
          WHEN SD.C1604 &lt;&gt; 0 AND NOT EXISTS (SELECT pl.SALDO_JTS_OID
                                               FROM PLANPAGOS pl
                                              WHERE pl.SALDO_JTS_OID = sd.JTS_OID             AND      
-                                                   pl.C2302_ORIGINAL &lt; convert(varchar, (SELECT fechaprocesoanterior FROM PARAMETROS), 103))  
+                                                   pl.C2302_ORIGINAL &lt;  (SELECT fechaprocesoanterior FROM PARAMETROS)--convert(varchar, (SELECT fechaprocesoanterior FROM PARAMETROS), 103)
+												   )  
                                                     THEN 'Em atraso'
          WHEN SD.C1604 &lt;&gt; 0 AND EXISTS (SELECT pl.SALDO_JTS_OID
                                           FROM PLANPAGOS pl
                                          WHERE pl.SALDO_JTS_OID = sd.JTS_OID                 AND      
-                                               pl.C2302_ORIGINAL &lt; convert(varchar, (SELECT fechaprocesoanterior FROM PARAMETROS), 103))  
+                                               pl.C2302_ORIGINAL &lt; (SELECT fechaprocesoanterior FROM PARAMETROS) --convert(varchar, (SELECT fechaprocesoanterior FROM PARAMETROS), 103)
+											   )  
                                                     THEN 'Ativo'
          WHEN (SD.C1604 = 0 AND PZ.MOTIVO_BAJA > 0) THEN 'Cancelado'
          ELSE 'Liquidado'
@@ -932,7 +936,7 @@ Selects com SUM
                                                        fj.TIPODOCUMENTO = 'CPF'                AND
                                                        fj.TZ_LOCK       = 0
 -- Viviane
-        LEFT JOIN PPN_MATRICULA MA                  ON convert(int, MA.MATRICULABENEFICIARIO) = SD.MATRICULA AND
+        LEFT JOIN PPN_MATRICULA MA                  ON convert(float, MA.MATRICULABENEFICIARIO) = SD.MATRICULA AND
                                                        MA.TZ_LOCK = 0                          AND
                                                        MA.CODIGOCONVENIO = SD.C1772
         LEFT JOIN PPN_CODIGOS_ESPECIES CE           ON CE.CODIGOESPECIE = MA.CODIGOESPECIE

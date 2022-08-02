@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <transformation>
   <info>
-    <name>etl_integracao_saida_cadoc_3050_sql</name>
+    <name>etl_integracao_saida_cadoc_3050</name>
     <description/>
     <extended_description/>
     <trans_version/>
@@ -445,11 +445,11 @@
     <name>TopazDS</name>
     <server>${TOPAZ_HOST}</server>
     <type>MSSQL</type>
-    <access>Native</access>
-    <database>${TOPAZ_DB}</database>
+    <access>JNDI</access>
+    <database>TopazDS</database>
     <port>1433</port>
-    <username>${TOPAZ_USER}</username>
-    <password>${TOPAZ_PSWD}</password>
+    <username/>
+    <password>Encrypted </password>
     <servername/>
     <data_tablespace/>
     <index_tablespace/>
@@ -498,11 +498,6 @@
   </connection>
   <order>
     <hop>
-      <from>Dados Header</from>
-      <to>Prepara Header</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
       <from>Prepara Header</from>
       <to>Replace in string 1</to>
       <enabled>Y</enabled>
@@ -540,11 +535,6 @@
     <hop>
       <from>Tags Diario</from>
       <to>Grupo Diario</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>Grupo Final</from>
-      <to>Grava Linha</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
@@ -705,6 +695,26 @@
     <hop>
       <from>Armazena datas</from>
       <to>Select values</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Grupo Final</from>
+      <to>Ajuste Data</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Ajuste Data</from>
+      <to>Grava Linha</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Dados Header</from>
+      <to>ajuste data 2</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>ajuste data 2</from>
+      <to>Prepara Header</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -1203,7 +1213,7 @@ WHERE
       </output>
     </remotesteps>
     <GUI>
-      <xloc>833</xloc>
+      <xloc>944</xloc>
       <yloc>96</yloc>
       <draw>Y</draw>
     </GUI>
@@ -1301,7 +1311,7 @@ WHERE
       </output>
     </remotesteps>
     <GUI>
-      <xloc>1147</xloc>
+      <xloc>1248</xloc>
       <yloc>96</yloc>
       <draw>Y</draw>
     </GUI>
@@ -1340,7 +1350,7 @@ WHERE
       </output>
     </remotesteps>
     <GUI>
-      <xloc>1147</xloc>
+      <xloc>1248</xloc>
       <yloc>16</yloc>
       <draw>Y</draw>
     </GUI>
@@ -1527,7 +1537,7 @@ FROM empresas EMP
     CASE
         WHEN SUM(tbl.qtdnov) > 0 THEN
          round	((SUM(tbl.principal1) + SUM(coalesce(tbl.iof, cast('0' as decimal(15,2)))) -
-					(SELECT coalesce(SUM(d.valorfinanciado), cast('0' as decimal(15,2)))
+					(SELECT coalesce(SUM(convert(int , d.valorfinanciado)), cast('0' as decimal(15,2)))
 						FROM vw_rel_cancelamento d
 						WHERE	d.datacontratacao = tbl.data_base
 							AND d.datacancelamento = tbl.data_base)
@@ -1599,7 +1609,7 @@ FROM
                 		s.c1785 = 5
             		AND s.tz_lock = 0     
     ) AS tbl
-WHERE tbl.data_base BETWEEN ? AND ?
+WHERE tbl.data_base BETWEEN convert(date,?, 103) AND convert(date, ?, 103)
 GROUP BY
     tbl.data_base
 ORDER BY
@@ -1786,7 +1796,7 @@ ORDER BY
       </output>
     </remotesteps>
     <GUI>
-      <xloc>990</xloc>
+      <xloc>1088</xloc>
       <yloc>96</yloc>
       <draw>Y</draw>
     </GUI>
@@ -2433,7 +2443,7 @@ FROM
         <name>DATA_FIM_PERIODO1</name>
         <element>dataBase</element>
         <type>String</type>
-        <format/>
+        <format>yyyy-MM-dd</format>
         <currency/>
         <decimal/>
         <group/>
@@ -2495,7 +2505,7 @@ FROM
       </output>
     </remotesteps>
     <GUI>
-      <xloc>833</xloc>
+      <xloc>944</xloc>
       <yloc>16</yloc>
       <draw>Y</draw>
     </GUI>
@@ -2586,7 +2596,7 @@ FROM
         <name>dataRef</name>
         <element/>
         <type>String</type>
-        <format/>
+        <format>yyyy-MM-dd</format>
         <currency/>
         <decimal/>
         <group/>
@@ -2645,7 +2655,7 @@ FROM
       </output>
     </remotesteps>
     <GUI>
-      <xloc>990</xloc>
+      <xloc>1088</xloc>
       <yloc>16</yloc>
       <draw>Y</draw>
     </GUI>
@@ -2708,7 +2718,7 @@ FROM
         <type>String</type>
         <length>-2</length>
         <precision>-2</precision>
-        <conversion_mask>yyyyMMdd</conversion_mask>
+        <conversion_mask>yyyy-MM-dd</conversion_mask>
         <date_format_lenient>true</date_format_lenient>
         <date_format_locale/>
         <date_format_timezone/>
@@ -2725,7 +2735,7 @@ FROM
         <type>String</type>
         <length>-2</length>
         <precision>-2</precision>
-        <conversion_mask/>
+        <conversion_mask>yyyy-MM-dd</conversion_mask>
         <date_format_lenient>false</date_format_lenient>
         <date_format_locale/>
         <date_format_timezone/>
@@ -2742,7 +2752,24 @@ FROM
         <type>String</type>
         <length>-2</length>
         <precision>-2</precision>
-        <conversion_mask/>
+        <conversion_mask>yyyy-MM-dd</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>
+      <meta>
+        <name>DATA_REF</name>
+        <rename>DATA_REF</rename>
+        <type>String</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask>yyyy-MM-dd</conversion_mask>
         <date_format_lenient>false</date_format_lenient>
         <date_format_locale/>
         <date_format_timezone/>
@@ -2787,7 +2814,7 @@ FROM
         <type>String</type>
         <length>-2</length>
         <precision>-2</precision>
-        <conversion_mask/>
+        <conversion_mask>yyyy-MM-dd</conversion_mask>
         <date_format_lenient>true</date_format_lenient>
         <date_format_locale/>
         <date_format_timezone/>
@@ -2804,7 +2831,7 @@ FROM
         <type>String</type>
         <length>-2</length>
         <precision>-2</precision>
-        <conversion_mask>yyyyMMdd</conversion_mask>
+        <conversion_mask>yyyy-MM-dd</conversion_mask>
         <date_format_lenient>true</date_format_lenient>
         <date_format_locale/>
         <date_format_timezone/>
@@ -2821,8 +2848,25 @@ FROM
         <type>Date</type>
         <length>-2</length>
         <precision>-2</precision>
-        <conversion_mask>yyyyMMdd</conversion_mask>
+        <conversion_mask>yyyy-MM-dd</conversion_mask>
         <date_format_lenient>true</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>
+      <meta>
+        <name>data_base1</name>
+        <rename>data_base1</rename>
+        <type>String</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask>yyyy-MM-dd</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
         <date_format_locale/>
         <date_format_timezone/>
         <lenient_string_to_number>false</lenient_string_to_number>
@@ -2842,7 +2886,7 @@ FROM
       </output>
     </remotesteps>
     <GUI>
-      <xloc>362</xloc>
+      <xloc>352</xloc>
       <yloc>96</yloc>
       <draw>Y</draw>
     </GUI>
@@ -2966,7 +3010,7 @@ FROM
       </output>
     </remotesteps>
     <GUI>
-      <xloc>519</xloc>
+      <xloc>512</xloc>
       <yloc>512</yloc>
       <draw>Y</draw>
     </GUI>
@@ -3445,8 +3489,214 @@ WHERE
       </output>
     </remotesteps>
     <GUI>
-      <xloc>990</xloc>
+      <xloc>976</xloc>
       <yloc>256</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>Ajuste Data</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>dataRef</name>
+        <rename/>
+      </field>
+      <field>
+        <name>crdPesConApoINSSDiario</name>
+        <rename/>
+      </field>
+      <field>
+        <name>crdPesConApoINSSMensal</name>
+        <rename/>
+      </field>
+      <field>
+        <name>referencia</name>
+        <rename/>
+      </field>
+      <field>
+        <name>QtdUteis</name>
+        <rename/>
+      </field>
+      <field>
+        <name>ARQ</name>
+        <rename/>
+      </field>
+      <field>
+        <name>diarioInicio</name>
+        <rename/>
+      </field>
+      <field>
+        <name>diarioFim</name>
+        <rename/>
+      </field>
+      <field>
+        <name>linhaDiario</name>
+        <rename/>
+      </field>
+      <field>
+        <name>linhaMensal</name>
+        <rename/>
+      </field>
+      <field>
+        <name>mensalInicio</name>
+        <rename/>
+      </field>
+      <field>
+        <name>mensalFim</name>
+        <rename/>
+      </field>
+      <field>
+        <name>ReferenciaFim</name>
+        <rename/>
+      </field>
+      <field>
+        <name>linha</name>
+        <rename/>
+      </field>
+      <select_unspecified>N</select_unspecified>
+      <meta>
+        <name>dataRef</name>
+        <rename>dataRef</rename>
+        <type>String</type>
+        <length>10</length>
+        <precision>-2</precision>
+        <conversion_mask>yyyy-MM-dd</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>48</xloc>
+      <yloc>432</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>ajuste data 2</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>DATA_REF</name>
+        <rename/>
+      </field>
+      <field>
+        <name>dia</name>
+        <rename/>
+      </field>
+      <field>
+        <name>DATA_PROC</name>
+        <rename/>
+      </field>
+      <field>
+        <name>DATA_INICIO_PERIODO1</name>
+        <rename/>
+      </field>
+      <field>
+        <name>DATA_FIM_PERIODO1</name>
+        <rename/>
+      </field>
+      <field>
+        <name>CAMINHO</name>
+        <rename/>
+      </field>
+      <field>
+        <name>DT_INI1</name>
+        <rename/>
+      </field>
+      <field>
+        <name>DT_FIN1</name>
+        <rename/>
+      </field>
+      <field>
+        <name>DATA_INICIO_PERIODO</name>
+        <rename/>
+      </field>
+      <field>
+        <name>DATA_FIM_PERIODO</name>
+        <rename/>
+      </field>
+      <field>
+        <name>cnpjInstituicao</name>
+        <rename/>
+      </field>
+      <field>
+        <name>indRemessa</name>
+        <rename/>
+      </field>
+      <field>
+        <name>nmContato</name>
+        <rename/>
+      </field>
+      <field>
+        <name>telContato</name>
+        <rename/>
+      </field>
+      <field>
+        <name>COD_SIS_ORIGEM</name>
+        <rename/>
+      </field>
+      <select_unspecified>N</select_unspecified>
+      <meta>
+        <name>DATA_REF</name>
+        <rename>DATA_REF</rename>
+        <type>String</type>
+        <length>10</length>
+        <precision>-2</precision>
+        <conversion_mask>yyyy-MM-dd</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>816</xloc>
+      <yloc>16</yloc>
       <draw>Y</draw>
     </GUI>
   </step>

@@ -442,14 +442,14 @@
   <notepads>
   </notepads>
   <connection>
-    <name>TopazDS</name>
-    <server>${TOPAZ_HOST}</server>
+    <name>CARREFOUR</name>
+    <server>192.168.100.165</server>
     <type>MSSQL</type>
     <access>Native</access>
-    <database>${TOPAZ_DB}</database>
+    <database>CARREFOUR</database>
     <port>1433</port>
-    <username>${TOPAZ_USER}</username>
-    <password>${TOPAZ_PSWD}</password>
+    <username>desa</username>
+    <password>Encrypted 2be98afc86aa7f2e4cb79ce10da97bcdb</password>
     <servername/>
     <data_tablespace/>
     <index_tablespace/>
@@ -578,7 +578,7 @@
     </remotesteps>
     <GUI>
       <xloc>416</xloc>
-      <yloc>144</yloc>
+      <yloc>192</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -749,7 +749,7 @@
     </remotesteps>
     <GUI>
       <xloc>416</xloc>
-      <yloc>32</yloc>
+      <yloc>80</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -1069,8 +1069,8 @@
       </output>
     </remotesteps>
     <GUI>
-      <xloc>928</xloc>
-      <yloc>80</yloc>
+      <xloc>912</xloc>
+      <yloc>128</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -1107,7 +1107,7 @@
     </remotesteps>
     <GUI>
       <xloc>544</xloc>
-      <yloc>80</yloc>
+      <yloc>128</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -1200,7 +1200,7 @@
     </remotesteps>
     <GUI>
       <xloc>224</xloc>
-      <yloc>144</yloc>
+      <yloc>192</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -1215,7 +1215,7 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <connection>TopazDS</connection>
+    <connection>CARREFOUR</connection>
     <sql>SELECT --MC.OPERACION, MC.COD_TRANSACCION, mc.asiento,A.ESTADO,
 	'4667   '																AS COD_EMPRESA,
 	'O'																		AS COD_TIPO_CONTABIL,
@@ -1278,7 +1278,7 @@ GROUP BY E.EMPRESA, MC.RUBROCONTABLE, PC.C6326, MC.FECHAPROCESO, MC.DEBITOCREDIT
     </remotesteps>
     <GUI>
       <xloc>224</xloc>
-      <yloc>32</yloc>
+      <yloc>80</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -1364,7 +1364,7 @@ GROUP BY E.EMPRESA, MC.RUBROCONTABLE, PC.C6326, MC.FECHAPROCESO, MC.DEBITOCREDIT
     </remotesteps>
     <GUI>
       <xloc>800</xloc>
-      <yloc>80</yloc>
+      <yloc>128</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -1408,7 +1408,7 @@ GROUP BY E.EMPRESA, MC.RUBROCONTABLE, PC.C6326, MC.FECHAPROCESO, MC.DEBITOCREDIT
     </remotesteps>
     <GUI>
       <xloc>672</xloc>
-      <yloc>80</yloc>
+      <yloc>128</yloc>
       <draw>Y</draw>
     </GUI>
   </step>

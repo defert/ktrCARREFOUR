@@ -434,42 +434,24 @@
     <is_key_private>N</is_key_private>
   </info>
   <notepads>
-    <notepad>
-      <note>Limitado às empresas 17 e 20, onda 1
-Alterar conforme a demanda</note>
-      <xloc>48</xloc>
-      <yloc>32</yloc>
-      <width>236</width>
-      <heigth>40</heigth>
-      <fontname>Ariel</fontname>
-      <fontsize>10</fontsize>
-      <fontbold>N</fontbold>
-      <fontitalic>N</fontitalic>
-      <fontcolorred>0</fontcolorred>
-      <fontcolorgreen>0</fontcolorgreen>
-      <fontcolorblue>0</fontcolorblue>
-      <backgroundcolorred>255</backgroundcolorred>
-      <backgroundcolorgreen>205</backgroundcolorgreen>
-      <backgroundcolorblue>112</backgroundcolorblue>
-      <bordercolorred>100</bordercolorred>
-      <bordercolorgreen>100</bordercolorgreen>
-      <bordercolorblue>100</bordercolorblue>
-      <drawshadow>Y</drawshadow>
-    </notepad>
   </notepads>
   <connection>
     <name>TopazDS</name>
-    <server>${TOPAZ_HOST}</server>
-    <type>MSSQLNATIVE</type>
-    <access>Native</access>
-    <database>${TOPAZ_DB}</database>
+    <server>172.20.20.3</server>
+    <type>MSSQL</type>
+    <access>JNDI</access>
+    <database>TopazDS</database>
     <port>1433</port>
-    <username>${TOPAZ_USER}</username>
-    <password>${TOPAZ_PSWD}</password>
+    <username/>
+    <password>Encrypted </password>
     <servername/>
     <data_tablespace/>
     <index_tablespace/>
     <attributes>
+      <attribute>
+        <code>EXTRA_OPTION_MSSQL.instance</code>
+        <attribute>Topaz</attribute>
+      </attribute>
       <attribute>
         <code>FORCE_IDENTIFIERS_TO_LOWERCASE</code>
         <attribute>N</attribute>
@@ -481,10 +463,6 @@ Alterar conforme a demanda</note>
       <attribute>
         <code>IS_CLUSTERED</code>
         <attribute>N</attribute>
-      </attribute>
-      <attribute>
-        <code>MSSQLUseIntegratedSecurity</code>
-        <attribute>false</attribute>
       </attribute>
       <attribute>
         <code>MSSQL_DOUBLE_DECIMAL_SEPARATOR</code>

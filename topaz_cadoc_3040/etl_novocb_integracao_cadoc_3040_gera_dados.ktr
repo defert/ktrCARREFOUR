@@ -437,17 +437,21 @@
   </notepads>
   <connection>
     <name>TopazDS</name>
-    <server>${TOPAZ_HOST}</server>
+    <server>172.20.20.3</server>
     <type>MSSQL</type>
-    <access>Native</access>
-    <database>${TOPAZ_DB}</database>
+    <access>JNDI</access>
+    <database>TopazDS</database>
     <port>1433</port>
-    <username>${TOPAZ_USER}</username>
-    <password>${TOPAZ_PSWD}</password>
+    <username/>
+    <password>Encrypted </password>
     <servername/>
     <data_tablespace/>
     <index_tablespace/>
     <attributes>
+      <attribute>
+        <code>EXTRA_OPTION_MSSQL.instance</code>
+        <attribute>Topaz</attribute>
+      </attribute>
       <attribute>
         <code>FORCE_IDENTIFIERS_TO_LOWERCASE</code>
         <attribute>N</attribute>
@@ -504,7 +508,7 @@
       <schema_name/>
     </partitioning>
     <connection>TopazDS</connection>
-    <procedure>SP_GERA_DADOS_3040;1</procedure>
+    <procedure>SP_GERA_DADOS_3040</procedure>
     <lookup>
     </lookup>
     <result>
